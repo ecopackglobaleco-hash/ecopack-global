@@ -78,8 +78,8 @@ describe('Form Validation Property Tests', () => {
       // Generate emails that definitely satisfy the rules
       const validEmailArb = fc
         .tuple(
-          fc.stringMatching(/^[a-zA-Z0-9._%+-]+$/, { minLength: 1, maxLength: 64 }),
-          fc.stringMatching(/^[a-zA-Z0-9-]+$/, { minLength: 1, maxLength: 30 }),
+          fc.stringMatching(/^[a-zA-Z0-9._%+-]+$/, { maxLength: 64 }).filter(s => s.length >= 1),
+          fc.stringMatching(/^[a-zA-Z0-9-]+$/, { maxLength: 30 }).filter(s => s.length >= 1),
           fc.stringMatching(/^[a-zA-Z]{2,10}$/)
         )
         .map(([local, domainName, tld]) => `${local}@${domainName}.${tld}`)
@@ -96,7 +96,7 @@ describe('Form Validation Property Tests', () => {
 
     it('always rejects emails with no "@" symbol', () => {
       const noAtArb = fc
-        .stringMatching(/^[^@]+$/, { minLength: 1, maxLength: 254 });
+        .stringMatching(/^[^@]+$/, { maxLength: 254 }).filter(s => s.length >= 1);
 
       fc.assert(
         fc.property(noAtArb, (input: string) => {
@@ -194,7 +194,7 @@ describe('Form Validation Property Tests', () => {
       const invalidCharArb = fc
         .tuple(
           fc.string({ minLength: 0, maxLength: 5 }),
-          fc.stringMatching(/[a-zA-Z!@#$%^&*()={}[\]|\\:;"'<>,?/~`]/, { minLength: 1, maxLength: 1 }),
+          fc.stringMatching(/[a-zA-Z!@#$%^&*()={}[\]|\\:;"'<>,?/~`]/, { maxLength: 1 }).filter(s => s.length >= 1),
           fc.string({ minLength: 0, maxLength: 5 })
         )
         .map(([prefix, invalidChar, suffix]) => prefix + invalidChar + suffix)
@@ -257,11 +257,11 @@ describe('Form Validation Property Tests', () => {
       // Generate invalid emails (no @, multiple @, empty local, etc.)
       const invalidEmailArb = fc.oneof(
         fc.constant(''),                              // empty
-        fc.stringMatching(/^[^@]+$/, { minLength: 1, maxLength: 50 }),  // no @
+        fc.stringMatching(/^[^@]+$/, { maxLength: 50 }).filter(s => s.length >= 1),  // no @
         fc.tuple(                                    // multiple @
-          fc.stringMatching(/^[a-z]+$/, { minLength: 1, maxLength: 10 }),
-          fc.stringMatching(/^[a-z]+$/, { minLength: 1, maxLength: 10 }),
-          fc.stringMatching(/^[a-z]+$/, { minLength: 1, maxLength: 10 })
+          fc.stringMatching(/^[a-z]+$/, { maxLength: 10 }).filter(s => s.length >= 1),
+          fc.stringMatching(/^[a-z]+$/, { maxLength: 10 }).filter(s => s.length >= 1),
+          fc.stringMatching(/^[a-z]+$/, { maxLength: 10 }).filter(s => s.length >= 1)
         ).map(([a, b, c]) => `${a}@${b}@${c}`),
         fc.constant('@domain.com'),                  // empty local
         fc.constant('user@domain'),                  // no dot in domain

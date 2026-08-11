@@ -78,12 +78,12 @@ beforeEach(() => {
   jest.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
     const el = originalCreateElement(tagName);
     if (tagName === 'canvas') {
-      el.getContext = (contextId: string) => {
+      (el as HTMLCanvasElement).getContext = ((contextId: string) => {
         if (contextId === 'webgl2' || contextId === 'webgl') {
           return webglSupported ? ({} as any) : null;
         }
         return null;
-      };
+      }) as any;
     }
     return el;
   });

@@ -12,15 +12,15 @@ describe('Footer', () => {
 
   it('renders WhatsApp link that opens in new tab with correct number', () => {
     render(<Footer />);
-    const whatsappLink = screen.getByText('WhatsApp: 934723328436281482039');
-    expect(whatsappLink).toHaveAttribute('href', 'https://wa.me/934723328436281482039');
+    const whatsappLink = screen.getByText('+91 93472 32843');
+    expect(whatsappLink).toHaveAttribute('href', 'https://wa.me/919347232843');
     expect(whatsappLink).toHaveAttribute('target', '_blank');
     expect(whatsappLink).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
   it('renders Instagram link that opens in new tab', () => {
     render(<Footer />);
-    const instaLink = screen.getByText('@ecopackglobal');
+    const instaLink = screen.getByText('ecopackglobal');
     expect(instaLink).toHaveAttribute('href', 'https://www.instagram.com/ecopackglobal');
     expect(instaLink).toHaveAttribute('target', '_blank');
     expect(instaLink).toHaveAttribute('rel', 'noopener noreferrer');

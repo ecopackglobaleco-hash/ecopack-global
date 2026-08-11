@@ -126,12 +126,12 @@ beforeEach(() => {
   jest.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
     const el = originalCreateElement(tagName);
     if (tagName === 'canvas') {
-      el.getContext = (contextId: string) => {
+      (el as HTMLCanvasElement).getContext = ((contextId: string) => {
         if (contextId === 'webgl2' || contextId === 'webgl') {
           return webglSupported ? ({} as any) : null;
         }
         return null;
-      };
+      }) as any;
     }
     return el;
   });
@@ -281,8 +281,8 @@ describe('Responsive Breakpoint Behavior', () => {
         />
       );
 
-      // Get all input, select, and textarea elements
-      const inputs = document.querySelectorAll('input, select, textarea');
+      // Get all input, select, and textarea elements (exclude honeypot)
+      const inputs = document.querySelectorAll('input:not([name="_honey"]), select, textarea');
       expect(inputs.length).toBeGreaterThan(0);
 
       inputs.forEach((input) => {

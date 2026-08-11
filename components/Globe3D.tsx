@@ -16,8 +16,21 @@
  */
 
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, extend } from '@react-three/fiber';
 import * as THREE from 'three';
+
+// Extend Three.js Line so R3F doesn't confuse it with SVG <line>
+extend({ Line_: THREE.Line });
+
+declare module '@react-three/fiber' {
+  interface ThreeElements {
+    line_: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+      geometry?: THREE.BufferGeometry;
+      children?: React.ReactNode;
+      key?: string | number;
+    };
+  }
+}
 
 // ─── Design Tokens ───────────────────────────────────────────────────────────
 const OBSIDIAN = '#080A09';
@@ -245,9 +258,9 @@ function GridLines() {
   return (
     <group>
       {lines.map((geo, i) => (
-        <line key={i} geometry={geo}>
+        <line_ key={i} geometry={geo}>
           <lineBasicMaterial color={SECONDARY_GREEN} transparent opacity={0.18} />
-        </line>
+        </line_>
       ))}
     </group>
   );
@@ -327,9 +340,9 @@ function RouteArcs({ progress, prefersReducedMotion }: { progress: number; prefe
         const partialGeo = new THREE.BufferGeometry().setFromPoints(partialPoints);
 
         return (
-          <line key={arc.id} geometry={partialGeo}>
+          <line_ key={arc.id} geometry={partialGeo}>
             <lineBasicMaterial color={CHAMPAGNE_GOLD} transparent opacity={0.55} />
-          </line>
+          </line_>
         );
       })}
 
