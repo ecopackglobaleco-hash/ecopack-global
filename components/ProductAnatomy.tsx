@@ -19,8 +19,6 @@ import { gsap } from '@/lib/gsap';
 import { useReducedMotion } from '@/lib/useReducedMotion';
 
 // ─── Layer Configuration ─────────────────────────────────────────────────────
-// Each layer is a vertical slice of the exploded image, animated independently.
-// clipTop/clipBottom are percentages of the image height.
 const LAYERS = [
   { id: 'cap', name: 'Paper Cap / Closure', clipTop: 0, clipBottom: 18, yOffset: -50 },
   { id: 'seal', name: 'Inner Seal', clipTop: 18, clipBottom: 30, yOffset: -25 },
@@ -52,10 +50,6 @@ export default function ProductAnatomy() {
       },
     });
 
-    // Phase 1 (0–0.1): Assembled bottle visible
-    // (no-op, it starts visible)
-
-    // Phase 2 (0.1–0.3): Assembled fades out, layer container fades in
     tl.to(assembledRef.current, { opacity: 0, scale: 1.02, duration: 0.2, ease: 'none' }, 0.1);
     tl.fromTo(
       layersContainerRef.current,
@@ -64,7 +58,6 @@ export default function ProductAnatomy() {
       0.15
     );
 
-    // Phase 3 (0.25–0.7): Each layer separates via translateY
     if (layersContainerRef.current) {
       const layerEls = layersContainerRef.current.querySelectorAll('[data-layer]');
       layerEls.forEach((el, i) => {
@@ -78,7 +71,6 @@ export default function ProductAnatomy() {
       });
     }
 
-    // Phase 4 (0.5–1.0): Labels fade in staggered
     if (labelsRef.current) {
       const labels = labelsRef.current.querySelectorAll('[data-label]');
       tl.fromTo(
@@ -94,50 +86,49 @@ export default function ProductAnatomy() {
     <section
       id="product-anatomy"
       ref={sectionRef}
-      className="relative bg-obsidian overflow-x-hidden"
+      className="relative bg-obsidian overflow-x-clip"
       style={{ minHeight: '200vh' }}
       aria-label="3D Product Anatomy"
     >
       <div
         ref={pinContainerRef}
-        className="w-full h-screen flex flex-col items-center justify-center px-section"
+        className="w-full h-screen flex flex-col items-center justify-center px-4 tablet:px-section overflow-hidden"
       >
-        {/* Section Heading */}
-        <div className="absolute top-8 left-0 right-0 z-10 text-center px-section">
-          <h2 className="font-sora text-h2 text-ivory">
+        {/* Section Heading — responsive sizing */}
+        <div className="absolute top-6 tablet:top-8 left-0 right-0 z-10 text-center px-4 tablet:px-section">
+          <h2 className="font-sora text-ivory" style={{ fontSize: 'clamp(1.6rem, 6vw, 2.375rem)' }}>
             PRODUCT <span className="text-champagne-gold">ANATOMY</span>
           </h2>
-          <p className="mt-3 font-inter text-ivory/70 text-base max-w-md mx-auto">
+          <p className="mt-2 tablet:mt-3 font-inter text-ivory/70 text-sm tablet:text-base max-w-md mx-auto leading-relaxed">
             Scroll to explore the structure of our sustainable packaging
           </p>
         </div>
 
-        {/* Visual composition — absolute positioned for precise alignment */}
-        <div data-anatomy-viewer className="absolute inset-0 top-20">
-          {/* ASSEMBLED bottle (initial state) — true center with slight left offset for labels */}
+        {/* Visual composition — responsive grid on mobile, absolute on desktop */}
+        <div data-anatomy-viewer className="absolute inset-0 top-20 tablet:top-20">
+
+          {/* ASSEMBLED bottle */}
           <div
             ref={assembledRef}
-            className="absolute z-10 flex items-center justify-center"
-            style={{ left: '45%', top: '50%', transform: 'translate(-50%, -50%)', height: '80%' }}
+            className="absolute z-10 flex items-center justify-center left-1/2 tablet:left-[42%] top-[45%] tablet:top-1/2 -translate-x-1/2 -translate-y-1/2 h-[55%] tablet:h-[75%]"
           >
             <Image
               src="/images/paper-water-bottle.png"
               alt="EcoPack Global paper water bottle — assembled"
               width={360}
               height={900}
-              className="object-contain h-full w-auto max-h-[600px] tablet:max-h-[560px] drop-shadow-[0_12px_40px_rgba(200,169,107,0.1)]"
-              sizes="(max-width: 767px) 50vw, (max-width: 1023px) 40vw, 320px"
+              className="object-contain h-full w-auto max-h-[320px] tablet:max-h-[500px] desktop:max-h-[600px] drop-shadow-[0_12px_40px_rgba(200,169,107,0.1)]"
+              sizes="(max-width: 767px) 40vw, (max-width: 1023px) 35vw, 300px"
               priority
             />
           </div>
 
-          {/* EXPLODED layers container (starts invisible) — same position as assembled */}
+          {/* EXPLODED layers container */}
           <div
             ref={layersContainerRef}
-            className={`absolute z-10 ${prefersReducedMotion ? '' : 'opacity-0'}`}
-            style={{ left: '45%', top: '50%', transform: 'translate(-50%, -50%)', height: '80%' }}
+            className={`absolute z-10 left-1/2 tablet:left-[42%] top-[45%] tablet:top-1/2 -translate-x-1/2 -translate-y-1/2 h-[55%] tablet:h-[75%] ${prefersReducedMotion ? '' : 'opacity-0'}`}
           >
-            <div className="relative h-full max-h-[600px]" style={{ aspectRatio: '0.38' }}>
+            <div className="relative h-full max-h-[320px] tablet:max-h-[500px] desktop:max-h-[600px]" style={{ aspectRatio: '0.38' }}>
               {LAYERS.map((layer) => (
                 <div
                   key={layer.id}
@@ -158,54 +149,35 @@ export default function ProductAnatomy() {
             </div>
           </div>
 
-          {/* Labels — aligned with bottle component vertical positions */}
+          {/* Labels */}
           <div
             ref={labelsRef}
-            className="absolute z-20 pointer-events-none"
-            style={{ left: '68%', top: '50%', transform: 'translateY(-50%)', height: '80%', maxHeight: '600px' }}
+            className="absolute z-20 pointer-events-none right-3 tablet:right-auto tablet:left-[65%] top-[45%] tablet:top-1/2 -translate-y-1/2 h-[50%] tablet:h-[75%] max-h-[300px] tablet:max-h-[500px] desktop:max-h-[600px]"
           >
-            {/* Desktop labels */}
-            <div className="relative h-full hidden tablet:block">
+            <div className="relative h-full flex flex-col justify-between">
               {LAYERS.map((layer) => {
                 const midPercent = (layer.clipTop + layer.clipBottom) / 2;
                 return (
                   <div
                     key={layer.id}
                     data-label
-                    className={`absolute flex items-center gap-3 ${prefersReducedMotion ? '' : 'opacity-0'}`}
-                    style={{ top: `${midPercent}%`, transform: 'translateY(-50%)' }}
+                    className={`flex items-center gap-1.5 tablet:gap-3 ${prefersReducedMotion ? '' : 'opacity-0'}`}
                   >
-                    <div className="w-8 desktop:w-14 h-px bg-champagne-gold/50 shrink-0" />
-                    <span className="text-ivory/90 text-[11px] desktop:text-xs font-sora font-medium tracking-wider uppercase whitespace-nowrap">
+                    <div className="w-4 tablet:w-8 desktop:w-14 h-px bg-champagne-gold/50 shrink-0" />
+                    <span className="text-ivory/90 text-[8px] tablet:text-[11px] desktop:text-xs font-sora font-medium tracking-wider uppercase" style={{ maxWidth: 'min(35vw, 200px)' }}>
                       {layer.name}
                     </span>
                   </div>
                 );
               })}
             </div>
-
-            {/* Mobile labels */}
-            <div className="tablet:hidden flex flex-col gap-2 items-center pt-4">
-              {LAYERS.map((layer) => (
-                <div
-                  key={`m-${layer.id}`}
-                  data-label
-                  className={`flex items-center gap-2 ${prefersReducedMotion ? '' : 'opacity-0'}`}
-                >
-                  <div className="w-5 h-px bg-champagne-gold/50" />
-                  <span className="text-ivory/90 text-[9px] font-sora font-medium tracking-wider uppercase whitespace-nowrap">
-                    {layer.name}
-                  </span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
 
         {/* Progress Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
-          <div className="w-px h-12 bg-champagne-gold/20 mx-auto" />
-          <span className="block mt-2 text-ivory/40 text-[10px] font-inter uppercase tracking-widest">
+        <div className="absolute bottom-6 tablet:bottom-8 left-1/2 -translate-x-1/2 z-10">
+          <div className="w-px h-8 tablet:h-12 bg-champagne-gold/20 mx-auto" />
+          <span className="block mt-2 text-ivory/40 text-[9px] tablet:text-[10px] font-inter uppercase tracking-widest">
             {prefersReducedMotion ? 'Exploded View' : 'Scroll to explore'}
           </span>
         </div>
